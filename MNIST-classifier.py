@@ -4,9 +4,10 @@ from sys import argv
 from os import getcwd
 from time import time
 import numpy as np
+from sklearn.tree import DecisionTreeClassifier
 
 
-def main(location=None):
+def main(learning_type='simple', location=None, max_depth=-1):
     mndata = MNIST(location if location is not None else getcwd())
     images, labels = mndata.load_training()
     test_images, test_labels = mndata.load_testing()
@@ -14,21 +15,32 @@ def main(location=None):
     images, labels = np.array(images), np.array(labels)
     test_images, test_labels = np.array(test_images), np.array(test_labels)
 
-    xg_cl = xgb.XGBClassifier(n_estimators=10, objective="logistic:multiple")
+    if learning_type == 'Decision Tree':
+        model = DecisionTreeClassifier(max_depth=max_depth)
+    else:
+        model = xgb.XGBClassifier(n_estimators=10, objective="logistic:multiple")
 
     print "Training..."
     start = time()
-    xg_cl.fit(images, labels)
+    model.fit(images, labels)
     print "Finished training in {} seconds.\nStarting predicting...".format(time() - start)
 
     start = time()
-    preds = xg_cl.predict(test_images)
+    preds = model.predict(test_images)
     print "Finished predicting in {} seconds, with {}% accuracy.".format(
-        time() - start, float(np.sum(preds==test_labels))/test_labels.shape[0] * 100)
+        time() - start, float(np.sum(preds == test_labels)) / test_labels.shape[0] * 100)
 
 
 if __name__ == '__main__':
-    if len(argv) > 1:
-        main(argv[1])
-    else:
-        main()
+
+    learning_type = 'simple'  # uses XGBClassifier
+    max_depth = -1
+    location = argv[2] if len(argv) > 2 else None
+
+    if argv[1] == 'dt':  # uses DecisionTreeClassifier
+        learning_type = 'Decision Tree'
+        max_depth = int(argv[2])
+        max_depth = max_depth if max_depth > 0 else None
+        location = argv[3] if len(argv) > 3 else None
+
+    main(learning_type=learning_type, location=location, max_depth=max_depth)
