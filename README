@@ -1,0 +1,18 @@
+Authors: Yossi Mandil & Tomer Gill
+
+How to run the MNIST classifiers:
+    python MNIST-classifier.py [type max_depth [folds num_boosts]] [location]
+Where [] are optional depending on type.
+
+If type is "dt" then a decision tree classification is being used (sklearn's DecisionTreeLearner) and the max_depth
+    parameter needs to be set, but folds and num_boosts are *not*.
+
+If type is either "cv" or "boosting" then xgboost's cross validation function will be used,
+    and all of max_dpeth, folds and num_boosts needs to be set.
+
+If type is not supplied then the XGBClassifier is used and no other parameter needs to be set.
+
+For all types the last parameter location is optional, and is the path to the training and test data sets.
+If no location is specified then the current folder is used.
+NOTICE: The program looks for the files: t10k-images-idx3-ubyte, t10k-labels-idx3-ubyte, train-images-idx3-ubyte and
+    train-labels-idx3-ubyte. So they need to be in location.
